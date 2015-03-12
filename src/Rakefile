@@ -1,0 +1,47 @@
+# The orignal wrote by Takahashim.
+# Copied from http://qiita.com/takahashim/items/406421d515ef1d4f1189 by Monaka.
+#
+require 'rake/clean'
+require 'fileutils'
+
+## Variables
+
+BOOKNAME = "book"
+CONFIG_FILE = "config.yml"
+OTHER_FILES =  %w{CHAPS PREDEF POSTDEF} << CONFIG_FILE
+
+PDF_FILE = "#{BOOKNAME}.pdf"
+EPUB_FILE = "#{BOOKNAME}.epub"
+
+SRC = FileList['*.re'] + OTHER_FILES
+CLEAN.include(["#{BOOKNAME}", "#{BOOKNAME}-pdf", "#{BOOKNAME}.pdf", "#{BOOKNAME}-epub", "#{BOOKNAME}.epub"])
+
+
+## Tasks
+
+##task :default => :pdf
+task :default => :all
+
+desc "generate PDF and EPUB file"
+task :all => [:pdf, :epub]
+
+desc "generate PDF file"
+task :pdf => PDF_FILE
+
+desc "generate EPUB file"
+task :epub => EPUB_FILE
+
+
+## File Tasks
+
+file PDF_FILE => SRC do
+  FileUtils.rm_f PDF_FILE
+  FileUtils.rm_rf "#{BOOKNAME}-pdf"
+  sh "review-pdfmaker #{CONFIG_FILE}"
+end
+
+file EPUB_FILE => SRC do
+  FileUtils.rm_f EPUB_FILE
+  FileUtils.rm_rf "#{BOOKNAME}-epub"
+  sh "review-epubmaker #{CONFIG_FILE}"
+end
